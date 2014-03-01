@@ -73,9 +73,15 @@
     
     (t (error 'dsp-conf-error :message "Unsupported sample format"))))
 
-(defun configure-device (device)
-  "Call needed ioctls on device"
-  (declare (type dsp-device device))
+(defgeneric configure-device (device)
+  (:documentation "Call needed ioctls on device"))
+
+(defmethod configure-device :around ((device dsp-device))
+  (handler-bind
+      ((dsp-conf-error #'(lambda (c) (close (dsp-error-device c)))))
+    (call-next-method)))
+
+(defmethod configure-device ((device dsp-device))
   (let ((fd (dsp-device-file-desc device)))
     (or (oss-set-fmt fd (dsp-device-sample-format device))
         (error 'dsp-conf-error
