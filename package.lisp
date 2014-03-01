@@ -6,6 +6,7 @@
            #:dsp-device
            #:dsp-device-input
            #:dsp-device-output
+           #:with-dsp-device
 
            #:dsp-device-channels
            #:dsp-device-sample-rate

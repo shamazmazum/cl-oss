@@ -173,3 +173,9 @@
 
 (defmethod stream-read-byte ((device dsp-device-input))
   (read-byte (dsp-device-stream device)))
+
+(defmacro with-dsp-device ((device class &rest args) &body body)
+  `(let ((,device (make-instance ',class ,@args)))
+     (unwind-protect
+          (progn ,@body)
+       (close ,device))))
