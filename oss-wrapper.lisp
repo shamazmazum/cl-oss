@@ -39,11 +39,11 @@
    if (res == -1) return 0;
    return ch == new_ch;")
 
-(defwrapper* ("oss_set_samplerate" oss-set-samplerate) :boolean
+(defwrapper* ("oss_set_sample_rate" oss-set-sample-rate) :boolean
   ((fd         :int)
-   (samplerate :int))
-  "int new_samplerate = samplerate;
+   (sample-rate :int))
+  "int new_sample_rate = sample_rate;
    int res;
-   res = ioctl (fd, SNDCTL_DSP_SPEED, &new_samplerate);
+   res = ioctl (fd, SNDCTL_DSP_SPEED, &new_sample_rate);
    if (res == -1) return 0;
-   return samplerate == new_samplerate;")
+   return sample_rate == new_sample_rate;")

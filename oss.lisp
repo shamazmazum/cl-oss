@@ -16,14 +16,17 @@
         (cons +afmt-mpeg+      "MPEG MP2/MP3 encoding"))
   "String description of format codes")
 
-(define-condition dsp-error (stream-error)
+(define-condition dsp-conf-error ()
   ((message :reader   dsp-error-message
             :initarg  :message
-            :initform ""))
+            :initform "")
+   (device  :reader   dsp-error-device
+            :initarg  :device
+            :initform nil))
   (:report (lambda (c s)
              (format s "DSP error ~S on device ~A"
                      (dsp-error-message c)
-                     (stream-error-stream c))))
+                     (dsp-error-device  c))))
   (:documentation "DSP error"))
   
 (defclass dsp-device (fundamental-binary-stream)
@@ -31,41 +34,61 @@
                      :documentation "Underlaying stream")
    (file-desc        :accessor dsp-device-file-desc
                      :documentation "File descriptor of the underlaying stream")
-   (element-type     :reader   dsp-device-element-type
-                     :documentation "Element type of underlaying stream"
-                     :initarg  :element-type
-                     :initform '(signed-byte 16))
+   (sample-format    :reader   dsp-device-sample-format
+                     :documentation "Sample format understood by OSS"
+                     :initarg  :sample-format
+                     :initform +afmt-s16-le+)
    (channels         :reader   dsp-device-channels
                      :documentation "Number of audio channels"
                      :initarg  :channels
                      :initform 2)
-   (samplerate       :reader   dsp-device-samplerate
+   (sample-rate      :reader   dsp-device-sample-rate
                      :documentation "Sample rate"
-                     :initarg  :samplerate
+                     :initarg  :sample-rate
                      :initform 44100))
   (:documentation "DSP device. Not to be instaniated"))
+
+(defun choose-element-type (format)
+  (cond
+    ((= format +afmt-u8+) '(unsigned-byte 8))
+    ((= format +afmt-s8+) '(signed-byte 8))
+    
+    ((or (= format +afmt-s16-le+)
+         (= format +afmt-s16-be+)
+         (= format +afmt-s16-ne+))
+     '(signed-byte 16))
+    
+    ((or (= format +afmt-u16-le+)
+         (= format +afmt-u16-be+))
+     '(unsigned-byte 16))
+
+    ((or (= format +afmt-s16-le+)
+         (= format +afmt-s16-be+)
+         (= format +afmt-s16-ne+))
+     '(signed-byte 16))
+    
+    ((or (= format +afmt-s32-le+)
+         (= format +afmt-s32-be+))
+     '(signed-byte 32))
+    
+    (t (error 'dsp-conf-error :message "Unsupported sample format"))))
 
 (defun configure-device (device)
   "Call needed ioctls on device"
   (declare (type dsp-device device))
-  (flet ((choose-audio-format (element-type)
-           (cond
-             ((equalp element-type '(unsigned-byte 8))  +afmt-u8+)
-             ((equalp element-type '(signed-byte 8))    +afmt-s8+)
-             ;; FIXME: here and below: only litte endian encoding is currently supported
-             ((equalp element-type '(unsigned-byte 16)) +afmt-u16-le+)
-             ((equalp element-type '(signed-byte 16))   +afmt-s16-le+)
-             ((equalp element-type '(signed-byte 32))   +afmt-s32-le+)
-             (t (error 'dsp-error :message "Unsupported external-format")))))
-
-    (let ((fd (dsp-device-file-desc device)))
-      (or (oss-set-fmt fd (choose-audio-format
-                           (dsp-device-element-type device)))
-          (error 'dsp-error :message "Cannot set audio format"))
-      (or (oss-set-channels fd (dsp-device-channels device))
-          (error 'dsp-error :message "Cannot set number of channels"))
-      (or (oss-set-samplerate fd (dsp-device-samplerate device))
-          (error 'dsp-error :message "Cannot set sample rate")))))
+  (let ((fd (dsp-device-file-desc device)))
+    (or (oss-set-fmt fd (dsp-device-sample-format device))
+        (error 'dsp-conf-error
+               :message "Cannot set audio format"
+               :device device))
+    (or (oss-set-channels fd (dsp-device-channels device))
+        (error 'dsp-conf-error
+               :message "Cannot set number of channels"
+               :device device))
+    (or (oss-set-sample-rate fd (dsp-device-sample-rate device))
+        (error 'dsp-conf-error
+               :message "Cannot set sample rate"
+               :device device))))
 
 (defun format-supported-p (mask fmt)
   "Returns T if format FMT is supported"
@@ -77,34 +100,33 @@
   (call-next-method))
 
 (defmethod print-object ((device dsp-device) stream)
-  (let ((fd (dsp-device-file-desc device)))
-    (pprint-logical-block (stream nil :prefix "#<DSP device: " :suffix ">")
-      (format stream "Supported formats: ")
-      (let ((supported-formats
-             (if (open-stream-p device)
-                 (mapcar #'cdr
-                         (remove-if-not #'(lambda (format-desc)
-                                            (format-supported-p
-                                             (oss-get-fmts fd)
-                                             (car format-desc)))
-                                        +format-description+)))))
-        (pprint-logical-block (stream supported-formats)
-          (pprint-linear stream supported-formats nil)))
-      (pprint-newline :mandatory stream)
-      (pprint-indent :block 0 stream)
-      (format stream "Current format: ~A"
-              (cdr (find (oss-query-fmt fd)
-                         +format-description+
-                         :test #'(lambda (format format-desc)
-                                   (= format (car format-desc))))))
+  (pprint-logical-block (stream nil :prefix "#<DSP device: " :suffix ">")
+    (format stream "Supported formats: ")
+    (let ((supported-formats
+           (if (open-stream-p device)
+               (mapcar #'cdr
+                       (remove-if-not #'(lambda (format-desc)
+                                          (format-supported-p
+                                           (oss-get-fmts (dsp-device-file-desc device))
+                                           (car format-desc)))
+                                      +format-description+)))))
+      (pprint-logical-block (stream supported-formats)
+        (pprint-linear stream supported-formats nil)))
+    (pprint-newline :mandatory stream)
+    (pprint-indent :block 0 stream)
+    (format stream "Current format: ~A"
+            (cdr (find (dsp-device-sample-format device)
+                       +format-description+
+                       :test #'(lambda (format format-desc)
+                                 (= format (car format-desc))))))
       
-      (pprint-newline :mandatory stream)
-      (pprint-indent :block 0 stream)
-      (format stream "Number of channels: ~D" (dsp-device-channels device))
+    (pprint-newline :mandatory stream)
+    (pprint-indent :block 0 stream)
+    (format stream "Number of channels: ~D" (dsp-device-channels device))
       
-      (pprint-newline :mandatory stream)
-      (pprint-indent :block 0 stream)
-      (format stream "Sample rate: ~D" (dsp-device-samplerate device)))))
+    (pprint-newline :mandatory stream)
+    (pprint-indent :block 0 stream)
+    (format stream "Sample rate: ~D" (dsp-device-sample-rate device))))
 
 
 (defclass dsp-device-output (dsp-device fundamental-binary-output-stream)
@@ -115,7 +137,8 @@
   (declare (ignore initargs))
   (setf (dsp-device-stream device)
         (open "/dev/dsp"
-              :element-type (dsp-device-element-type device)
+              :element-type (choose-element-type
+                             (dsp-device-sample-format device))
               :direction :output
               :if-exists :supersede)
         (dsp-device-file-desc device)
@@ -137,7 +160,8 @@
   (declare (ignore initargs))
   (setf (dsp-device-stream device)
         (open "/dev/dsp"
-              :element-type (dsp-device-element-type device)
+              :element-type (choose-element-type
+                             (dsp-device-sample-format device))
               :direction :input)
         (dsp-device-file-desc device)
         (get-file-descriptor (dsp-device-stream device) :input))
