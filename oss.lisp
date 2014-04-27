@@ -96,6 +96,21 @@
                :message "Cannot set sample rate"
                :device device))))
 
+(defmethod initialize-instance :after ((device dsp-device) &rest initargs)
+  (declare (ignore initargs))
+  (let ((direction (cond
+                     ((input-stream-p device)  :input)
+                     ((output-stream-p device) :output))))
+    (setf (dsp-device-stream device)
+          (open "/dev/dsp"
+                :element-type (choose-element-type
+                               (dsp-device-sample-format device))
+                :direction direction
+                :if-exists :supersede)
+          (dsp-device-file-desc device)
+          (get-file-descriptor (dsp-device-stream device) direction))
+    (configure-device device)))
+
 (defun format-supported-p (mask fmt)
   "Returns T if format FMT is supported"
   (/= (logand fmt mask) 0))
@@ -134,22 +149,10 @@
     (pprint-indent :block 0 stream)
     (format stream "Sample rate: ~D" (dsp-device-sample-rate device))))
 
-
+;; Output
 (defclass dsp-device-output (dsp-device fundamental-binary-output-stream)
   ()
   (:documentation "Class for output to DSP device"))
-
-(defmethod initialize-instance :after ((device dsp-device-output) &rest initargs)
-  (declare (ignore initargs))
-  (setf (dsp-device-stream device)
-        (open "/dev/dsp"
-              :element-type (choose-element-type
-                             (dsp-device-sample-format device))
-              :direction :output
-              :if-exists :supersede)
-        (dsp-device-file-desc device)
-        (get-file-descriptor (dsp-device-stream device) :output))
-  (configure-device device))
 
 (defmethod stream-write-sequence ((device dsp-device-output) sequence start end &key)
   (write-sequence sequence (dsp-device-stream device)
@@ -158,20 +161,10 @@
 (defmethod stream-write-byte ((device dsp-device-output) byte)
   (write-byte byte (dsp-device-stream device)))
 
+;; Input
 (defclass dsp-device-input (dsp-device fundamental-binary-input-stream)
   ()
   (:documentation "Class for input from DSP device"))
-
-(defmethod initialize-instance :after ((device dsp-device-input) &rest initargs)
-  (declare (ignore initargs))
-  (setf (dsp-device-stream device)
-        (open "/dev/dsp"
-              :element-type (choose-element-type
-                             (dsp-device-sample-format device))
-              :direction :input)
-        (dsp-device-file-desc device)
-        (get-file-descriptor (dsp-device-stream device) :input))
-  (configure-device device))
 
 (defmethod stream-read-sequence ((device dsp-device-input) sequence start end &key)
   (read-sequence sequence (dsp-device-stream device)
