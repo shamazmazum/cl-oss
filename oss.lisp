@@ -122,32 +122,31 @@
 
 (defmethod print-object ((device dsp-device) stream)
   (pprint-logical-block (stream nil :prefix "#<DSP device: " :suffix ">")
-    (format stream "Supported formats: ")
-    (let ((supported-formats
-           (if (open-stream-p device)
-               (mapcar #'cdr
-                       (remove-if-not #'(lambda (format-desc)
-                                          (format-supported-p
-                                           (oss-get-fmts (dsp-device-file-desc device))
-                                           (car format-desc)))
-                                      +format-description+)))))
-      (pprint-logical-block (stream supported-formats)
-        (pprint-linear stream supported-formats nil)))
-    (pprint-newline :mandatory stream)
-    (pprint-indent :block 0 stream)
-    (format stream "Current format: ~A"
-            (cdr (find (dsp-device-sample-format device)
-                       +format-description+
-                       :test #'(lambda (format format-desc)
-                                 (= format (car format-desc))))))
+    (when (open-stream-p device)
+      (format stream "Supported formats: ")
+      (let* ((supported-formats (oss-get-fmts (dsp-device-file-desc device)))
+             (supported-formats-list (remove-if-not #'(lambda (format)
+                                                        (format-supported-p supported-formats format))
+                                                    +format-description+
+                                                    :key #'car)))
+        (pprint-logical-block (stream supported-formats-list)
+          (pprint-linear stream (mapcar #'cdr supported-formats-list) nil)))
+
+      (pprint-newline :mandatory stream)
+      (pprint-indent :block 0 stream)
+      (format stream "Current format: ~A"
+              (cdr (find (dsp-device-sample-format device)
+                         +format-description+
+                         :test #'=
+                         :key #'car)))
       
-    (pprint-newline :mandatory stream)
-    (pprint-indent :block 0 stream)
-    (format stream "Number of channels: ~D" (dsp-device-channels device))
+      (pprint-newline :mandatory stream)
+      (pprint-indent :block 0 stream)
+      (format stream "Number of channels: ~D" (dsp-device-channels device))
       
-    (pprint-newline :mandatory stream)
-    (pprint-indent :block 0 stream)
-    (format stream "Sample rate: ~D" (dsp-device-sample-rate device))))
+      (pprint-newline :mandatory stream)
+      (pprint-indent :block 0 stream)
+      (format stream "Sample rate: ~D" (dsp-device-sample-rate device)))))
 
 ;; Output
 (defclass dsp-device-output (dsp-device fundamental-binary-output-stream)
