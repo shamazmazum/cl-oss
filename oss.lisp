@@ -30,7 +30,11 @@
   (:documentation "DSP error"))
   
 (defclass dsp-device (fundamental-binary-stream)
-  ((stream           :accessor dsp-device-stream
+  ((name             :initarg :name
+                     :initform "/dev/dsp"
+                     :reader dsp-device-name
+                     :documentation "dsp device filename")
+   (stream           :accessor dsp-device-stream
                      :documentation "Underlaying stream")
    (file-desc        :accessor dsp-device-file-desc
                      :documentation "File descriptor of the underlaying stream")
@@ -102,7 +106,7 @@
                      ((input-stream-p device)  :input)
                      ((output-stream-p device) :output))))
     (setf (dsp-device-stream device)
-          (open "/dev/dsp"
+          (open (dsp-device-name device)
                 :element-type (choose-element-type
                                (dsp-device-sample-format device))
                 :direction direction
