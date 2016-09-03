@@ -105,14 +105,13 @@
   (let ((direction (cond
                      ((input-stream-p device)  :input)
                      ((output-stream-p device) :output))))
-    (setf (dsp-device-stream device)
-          (open (dsp-device-name device)
-                :element-type (choose-element-type
-                               (dsp-device-sample-format device))
-                :direction direction
-                :if-exists :supersede)
-          (dsp-device-file-desc device)
-          (get-file-descriptor (dsp-device-stream device) direction))
+    (setf (dsp-device-file-desc device)
+          (open/return-descriptor (dsp-device-name device) direction)
+          (dsp-device-stream device)
+          (make-stream-from-descriptor
+           (dsp-device-file-desc device)
+           direction
+           (choose-element-type (dsp-device-sample-format device))))
     (configure-device device)))
 
 (defun format-supported-p (mask fmt)
