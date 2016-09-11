@@ -21,4 +21,4 @@
                            :input inputp
                            :output (not inputp)
                            :element-type element-type
-                           :buffering :none)))
+                           :buffering :full)))

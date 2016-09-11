@@ -163,6 +163,9 @@
 (defmethod stream-write-byte ((device dsp-device-output) byte)
   (write-byte byte (dsp-device-stream device)))
 
+(defmethod stream-force-output ((device dsp-device-output))
+  (force-output (dsp-device-stream device)))
+
 ;; Input
 (defclass dsp-device-input (dsp-device fundamental-binary-input-stream)
   ()
