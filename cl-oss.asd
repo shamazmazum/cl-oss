@@ -3,7 +3,8 @@
 
 (defsystem :cl-oss
     :description "OSS support for Common Lisp"
-    :maintainer "Vasily Postnicov <shamaz.mazum at gmail.com>"
+    :maintainer "Vasily Postnicov <shamaz.mazum@gmail.com>"
+    :licence "2-clause BSD"
     :version "0.0"
     :depends-on (:cffi :trivial-gray-streams)
     :components ((:file "package")

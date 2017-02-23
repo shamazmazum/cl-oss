@@ -179,6 +179,9 @@
   (read-byte (dsp-device-stream device)))
 
 (defmacro with-dsp-device ((device class &rest args) &body body)
+  "Bounds @cl:param(device) to open dsp device of class @cl:param(class).
+Closes the device when control leaves the @cl:param(body). @cl:param(args)
+are passed to @c(make-instance) on creation of the device."
   `(let ((,device (make-instance ',class ,@args)))
      (unwind-protect
           (progn ,@body)
