@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+  Examples &ndash; cl-oss
+</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    
+  <link rel="stylesheet" href="static/highlight.css"/>
+  <script src="static/highlight.js"></script>
+  <style>
+   /* Highlight the current top-level TOC item, and hide the TOC of all other items */
+
+   .toc a[data-node="examples"] {
+       color: #AD3108;
+   }
+
+   .toc ol {
+       display: none;
+   }
+
+   .toc > ol {
+       display: block;
+   }
+
+   .toc li a[data-node="examples"] + ol {
+       display: block;
+   }
+
+   .toc li a[data-node="examples"] + ol li {
+       font-size: 16px;
+       margin: 0 10px;
+   }
+
+   .toc li a[active] + ol li:first-child {
+       margin-top: 5px;
+   }
+  </style>
+
+  </head>
+  <body>
+    
+  <h1 class="doc-title">cl-oss » Examples</h1>
+  <article id="article" data-section="examples">
+    <aside>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="examples.html" data-node="examples">Examples</a></li><li><a href="api.html" data-node="api">API</a></li></ol>
+    </aside>
+    <main class="codex-section">
+      
+   To create an input or output stream for dsp device you must instaniate from
+   either <code>oss:dsp-device-input</code> or <code>oss:dsp-device-output</code>
+   class. Bidirectional streams are not supported. Each of these classes are
+   inherited from <code>oss:dsp-device</code> class and supports following initargs
+   <ul><li><code>:name</code> is the name of dsp device. Default is <code>&quot;/dev/dsp&quot;</code>.</li><li><code>:sample-format</code> is the sample format supported by OSS.</li><li><code>:channels</code> is the number of channels. Default is 2.</li><li><code>:sample-rate</code> is the sample rate. Default is 44100.</li></ul>
+   You can work then with instance of <code>oss:dsp-device-input</code> as with binary
+   input stream and with instance of <code>oss:dsp-device-output</code> as with binary
+   output stream. For example:
+   <pre><code class="lisp">(let ((stream (make-instance 'oss:dsp-device-output
+                                :sample-format oss:+afmt-s16-le+)))
+       (write-sequence buffer stream)
+       (close stream))
+   </code></pre>
+   You can also use macro <code>oss:with-dsp-device</code> to open and safely close dsp
+   devices.
+   <pre><code class="lisp">(oss:with-dsp-device (stream oss:dsp-device-output :sample-format oss:+afmt-s16-le+)
+       (write-sequence buffer stream))
+   </code></pre>
+   If dsp device initialization fails (e.g. unsupported samplerate),
+   <code>dsp-conf-error</code> condition is signaled.
+   The sample formats supported by OSS include:
+   <ul><li><code>+afmt-mu-law+</code></li><li><code>+afmt-a-law+</code></li><li><code>+afmt-ima-adpcm+</code></li><li><code>+afmt-u8+</code></li><li><code>+afmt-s16-le+</code></li><li><code>+afmt-s16-be+</code></li><li><code>+afmt-s16-ne+</code></li><li><code>+afmt-s8+</code></li><li><code>+afmt-s32-le+</code></li><li><code>+afmt-s32-be+</code></li><li><code>+afmt-u16-le+</code></li><li><code>+afmt-u16-be+</code></li><li><code>+afmt-mpeg+</code></li></ul>
+
+    </main>
+  </article>
+  <footer>
+    <div class="info">
+      Created with <a href="https://github.com/CommonDoc/codex">Codex</a>.
+    </div>
+  </footer>
+  <script>
+   HighlightLisp.highlight_auto();
+  </script>
+
+  </body>
+</html>

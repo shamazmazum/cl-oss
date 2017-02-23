@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+  API &ndash; cl-oss
+</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    
+  <link rel="stylesheet" href="static/highlight.css"/>
+  <script src="static/highlight.js"></script>
+  <style>
+   /* Highlight the current top-level TOC item, and hide the TOC of all other items */
+
+   .toc a[data-node="api"] {
+       color: #AD3108;
+   }
+
+   .toc ol {
+       display: none;
+   }
+
+   .toc > ol {
+       display: block;
+   }
+
+   .toc li a[data-node="api"] + ol {
+       display: block;
+   }
+
+   .toc li a[data-node="api"] + ol li {
+       font-size: 16px;
+       margin: 0 10px;
+   }
+
+   .toc li a[active] + ol li:first-child {
+       margin-top: 5px;
+   }
+  </style>
+
+  </head>
+  <body>
+    
+  <h1 class="doc-title">cl-oss » API</h1>
+  <article id="article" data-section="api">
+    <aside>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="examples.html" data-node="examples">Examples</a></li><li><a href="api.html" data-node="api">API</a></li></ol>
+    </aside>
+    <main class="codex-section">
+      
+   Here is an API reference.
+   
+      <div class="codex-doc-node codex-record codex-class"><code class="codex-name">dsp-device</code><div class="codex-docstring">DSP device. Not to be instaniated</div><ul class="codex-slot-list"><li class="codex-slot codex-class-slot"><code class="codex-name">name</code><div class="codex-docstring">dsp device filename</div></li><li class="codex-slot codex-class-slot"><code class="codex-name">stream</code><div class="codex-docstring">Underlaying stream</div></li><li class="codex-slot codex-class-slot"><code class="codex-name">file-desc</code><div class="codex-docstring">File descriptor of the underlaying stream</div></li><li class="codex-slot codex-class-slot"><code class="codex-name">sample-format</code><div class="codex-docstring">Sample format understood by OSS</div></li><li class="codex-slot codex-class-slot"><code class="codex-name">channels</code><div class="codex-docstring">Number of audio channels</div></li><li class="codex-slot codex-class-slot"><code class="codex-name">sample-rate</code><div class="codex-docstring">Sample rate</div></li></ul></div>
+      <div class="codex-doc-node codex-record codex-class"><code class="codex-name">dsp-device-output</code><div class="codex-docstring">Class for output to DSP device</div><ul class="codex-slot-list"></ul></div>
+      <div class="codex-doc-node codex-record codex-class"><code class="codex-name">dsp-device-input</code><div class="codex-docstring">Class for input from DSP device</div><ul class="codex-slot-list"></ul></div>
+      <div class="codex-doc-node codex-operator codex-macro"><code class="codex-name">with-dsp-device</code><code class="codex-lambda-list">((device class &amp;rest args) &amp;body body)</code><div class="codex-docstring">Bounds <code class="codex-param">device</code> to open dsp device of class <code class="codex-param">class</code>.
+Closes the device when control leaves the <code class="codex-param">body</code>. <code class="codex-param">args</code>
+are passed to <code>make-instance</code> on creation of the device.</div></div>
+   
+
+    </main>
+  </article>
+  <footer>
+    <div class="info">
+      Created with <a href="https://github.com/CommonDoc/codex">Codex</a>.
+    </div>
+  </footer>
+  <script>
+   HighlightLisp.highlight_auto();
+  </script>
+
+  </body>
+</html>
