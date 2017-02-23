@@ -11,7 +11,7 @@
    @title(Examples)
    To create an input or output stream for dsp device you must instaniate from
    either @c(oss:dsp-device-input) or @c(oss:dsp-device-output)
-   class. Bidirectional streams are not supported. Each of these classes are
+   class. Bidirectional streams are not supported. Each of these classes is
    inherited from @c(oss:dsp-device) class and supports following initargs
    @begin(list)
        @item(@c(:name) is the name of dsp device. Default is @c("/dev/dsp").)
