@@ -63,17 +63,29 @@
      '(signed-byte 16))
     
     ((or (= format +afmt-u16-le+)
-         (= format +afmt-u16-be+))
+         (= format +afmt-u16-be+)
+         (= format +afmt-u16-ne+))
      '(unsigned-byte 16))
 
-    ((or (= format +afmt-s16-le+)
-         (= format +afmt-s16-be+)
-         (= format +afmt-s16-ne+))
-     '(signed-byte 16))
-    
+    ((or (= format +afmt-u24-le+)
+         (= format +afmt-u24-be+)
+         (= format +afmt-u24-ne+))
+     '(unsigned-byte 24))
+
+    ((or (= format +afmt-s24-le+)
+         (= format +afmt-s24-be+)
+         (= format +afmt-s24-ne+))
+     '(signed-byte 24))
+
     ((or (= format +afmt-s32-le+)
-         (= format +afmt-s32-be+))
+         (= format +afmt-s32-be+)
+         (= format +afmt-s32-ne+))
      '(signed-byte 32))
+
+    ((or (= format +afmt-u32-le+)
+         (= format +afmt-u32-be+)
+         (= format +afmt-u32-ne+))
+     '(unsigned-byte 32))
     
     (t (error 'dsp-conf-error :message "Unsupported sample format"))))
 
