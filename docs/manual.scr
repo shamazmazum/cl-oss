@@ -4,7 +4,7 @@
    access to dsp device for recording and playback through gray streams. It also
    works for FreeBSD's sound system, as the API is the same. You can get it from
    @link[uri="http://github.com/shamazmazum/cl-oss"](GitHub). The only currently
-   supported Common Lisp realisation is SBCL, but it's trivial to add any other.
+   supported Common Lisp implementation is SBCL, but it's trivial to add any other.
 @end(section)
 
 @begin(section)
