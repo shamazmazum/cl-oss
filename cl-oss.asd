@@ -1,14 +1,13 @@
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (asdf:oos 'asdf:load-op :cffi-grovel))
-
 (defsystem :cl-oss
     :description "OSS support for Common Lisp"
     :maintainer "Vasily Postnicov <shamaz.mazum@gmail.com>"
     :licence "2-clause BSD"
     :version "0.0"
+    :defsystem-depends-on (:cffi-grovel)
     :depends-on (:cffi :trivial-gray-streams)
+    :serial t
     :components ((:file "package")
-                 (:file "impldep" :depends-on ("package"))
-                 (cffi-grovel:grovel-file "oss-cmacro")
-                 (cffi-grovel:wrapper-file "oss-wrapper" :soname "libosswrap")
-                 (:file "oss" :depends-on ("package"))))
+                 (:file "impldep")
+                 (:cffi-grovel-file "oss-cmacro" )
+                 (:cffi-wrapper-file "oss-wrapper" :soname "libosswrap")
+                 (:file "oss")))
