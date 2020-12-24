@@ -7,7 +7,6 @@
     :depends-on (:cffi :trivial-gray-streams)
     :serial t
     :components ((:file "package")
-                 (:file "impldep")
-                 (:cffi-grovel-file "oss-cmacro" )
-                 (:cffi-wrapper-file "oss-wrapper" :soname "libosswrap")
+                 (:cffi-grovel-file "grovel" )
+                 (:file "ffi")
                  (:file "oss")))

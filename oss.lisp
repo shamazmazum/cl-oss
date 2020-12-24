@@ -1,47 +1,45 @@
 (in-package :oss)
 
-(defparameter +format-description+
-  (list (cons +afmt-mu-law+    "Mu-law encoding")
-        (cons +afmt-a-law+     "A-law encoding")
-        (cons +afmt-ima-adpcm+ "IMA ADPCM encoding")
-        (cons +afmt-u8+        "Unsigned byte encoding")
-        (cons +afmt-s16-le+    "Signed 16 bit, little endian")
-        (cons +afmt-s16-be+    "Signed 16 bit, big endian")
-        (cons +afmt-s16-ne+    "Signed 16 bit, native endianness")
-        (cons +afmt-s8+        "Signed 8 bit")
-        (cons +afmt-s32-le+    "Signed 32 bit, little endian")
-        (cons +afmt-s32-be+    "Signed 32 bit, big endian")
-        (cons +afmt-u16-le+    "Unsigned 16 bit, little endian")
-        (cons +afmt-u16-be+    "Unsigned 16 bit, big endian")
-        (cons +afmt-mpeg+      "MPEG MP2/MP3 encoding"))
+(defparameter *format-description*
+  '((:afmt-mu-law    . "Mu-law encoding")
+    (:afmt-a-law     . "A-law encoding")
+    (:afmt-ima-adpcm . "IMA ADPCM encoding")
+    (:afmt-mpeg      . "MPEG MP2/MP3 encoding")
+
+    (:afmt-u8        . "Unsigned 8 bit")
+    (:afmt-s8        . "Signed 8 bit")
+
+    (:afmt-s16-le    . "Signed 16 bit, little endian")
+    (:afmt-s16-be    . "Signed 16 bit, big endian")
+    (:afmt-s16-ne    . "Signed 16 bit, native endianness")
+    (:afmt-u16-le    . "Unsigned 16 bit, little endian")
+    (:afmt-u16-be    . "Unsigned 16 bit, big endian")
+    (:afmt-u16-ne    . "Unsigned 16 bit, native endianness")
+
+    (:afmt-s24-le    . "Signed 24 bit, little endian")
+    (:afmt-s24-be    . "Signed 24 bit, big endian")
+    (:afmt-s24-ne    . "Signed 24 bit, native endianness")
+    (:afmt-u24-le    . "Unsigned 24 bit, little endian")
+    (:afmt-u24-be    . "Unsigned 24 bit, big endian")
+    (:afmt-u24-ne    . "Unsigned 24 bit, native endianness")
+
+    (:afmt-s32-le    . "Signed 32 bit, little endian")
+    (:afmt-s32-be    . "Signed 32 bit, big endian")
+    (:afmt-s32-ne    . "Signed 32 bit, native endianness")
+    (:afmt-u32-le    . "Unsigned 32 bit, little endian")
+    (:afmt-u32-be    . "Unsigned 32 bit, big endian")
+    (:afmt-u32-ne    . "Unsigned 32 bit, native endianness"))
   "String description of format codes")
 
-(define-condition dsp-conf-error ()
-  ((message :reader   dsp-error-message
-            :initarg  :message
-            :initform "")
-   (device  :reader   dsp-error-device
-            :initarg  :device
-            :initform nil))
-  (:report (lambda (c s)
-             (format s "DSP error ~S on device ~A"
-                     (dsp-error-message c)
-                     (dsp-error-device  c))))
-  (:documentation "DSP error"))
-  
 (defclass dsp-device (fundamental-binary-stream)
   ((name             :initarg :name
                      :initform "/dev/dsp"
                      :reader dsp-device-name
                      :documentation "dsp device filename")
-   (stream           :accessor dsp-device-stream
-                     :documentation "Underlaying stream")
-   (file-desc        :accessor dsp-device-file-desc
-                     :documentation "File descriptor of the underlaying stream")
    (sample-format    :reader   dsp-device-sample-format
                      :documentation "Sample format understood by OSS"
                      :initarg  :sample-format
-                     :initform +afmt-s16-le+)
+                     :initform :afmt-s16-le)
    (channels         :reader   dsp-device-channels
                      :documentation "Number of audio channels"
                      :initarg  :channels
@@ -49,86 +47,68 @@
    (sample-rate      :reader   dsp-device-sample-rate
                      :documentation "Sample rate"
                      :initarg  :sample-rate
-                     :initform 44100))
+                     :initform 44100)
+   (stream           :accessor dsp-device-stream
+                     :documentation "Underlaying stream"))
   (:documentation "DSP device. Not to be instaniated"))
 
 (defun choose-element-type (format)
-  (cond
-    ((= format +afmt-u8+) '(unsigned-byte 8))
-    ((= format +afmt-s8+) '(signed-byte 8))
-    
-    ((or (= format +afmt-s16-le+)
-         (= format +afmt-s16-be+)
-         (= format +afmt-s16-ne+))
+  (case format
+    ;; 8 bits
+    (:afmt-u8 '(unsigned-byte 8))
+    (:afmt-s8 '(signed-byte 8))
+    ;; 16 bits
+    ((:afmt-s16-le
+      :afmt-s16-be
+      :afmt-s16-ne)
      '(signed-byte 16))
-    
-    ((or (= format +afmt-u16-le+)
-         (= format +afmt-u16-be+)
-         (= format +afmt-u16-ne+))
+    ((:afmt-u16-le
+      :afmt-u16-be
+      :afmt-u16-ne)
      '(unsigned-byte 16))
-
-    ((or (= format +afmt-u24-le+)
-         (= format +afmt-u24-be+)
-         (= format +afmt-u24-ne+))
+    ;; 24 bits
+    ((:afmt-u24-le
+      :afmt-u24-be
+      :afmt-u24-ne)
      '(unsigned-byte 24))
-
-    ((or (= format +afmt-s24-le+)
-         (= format +afmt-s24-be+)
-         (= format +afmt-s24-ne+))
+    ((:afmt-s24-le
+      :afmt-s24-be
+      :afmt-s24-ne)
      '(signed-byte 24))
-
-    ((or (= format +afmt-s32-le+)
-         (= format +afmt-s32-be+)
-         (= format +afmt-s32-ne+))
+    ;; 32 bits
+    ((:afmt-s32-le
+      :afmt-s32-be
+      :afmt-s32-ne)
      '(signed-byte 32))
-
-    ((or (= format +afmt-u32-le+)
-         (= format +afmt-u32-be+)
-         (= format +afmt-u32-ne+))
+    ((:afmt-u32-le
+      :afmt-u32-be
+      :afmt-u32-ne)
      '(unsigned-byte 32))
-    
-    (t (error 'dsp-conf-error :message "Unsupported sample format"))))
+    (t (error 'dsp-conf-error
+              :message "Unsupported sample format"))))
 
-(defgeneric configure-device (device)
-  (:documentation "Call needed ioctls on device"))
-
-(defmethod configure-device :around ((device dsp-device))
-  (handler-bind
-      ((dsp-conf-error #'(lambda (c) (close (dsp-error-device c)))))
-    (call-next-method)))
-
-(defmethod configure-device ((device dsp-device))
-  (let ((fd (dsp-device-file-desc device)))
-    (or (oss-set-fmt fd (dsp-device-sample-format device))
-        (error 'dsp-conf-error
-               :message "Cannot set audio format"
-               :device device))
-    (or (oss-set-channels fd (dsp-device-channels device))
-        (error 'dsp-conf-error
-               :message "Cannot set number of channels"
-               :device device))
-    (or (oss-set-sample-rate fd (dsp-device-sample-rate device))
-        (error 'dsp-conf-error
-               :message "Cannot set sample rate"
-               :device device))))
+(defun configure-device (device)
+  (let ((stream (dsp-device-stream device)))
+    (oss-set-fmt stream (dsp-device-sample-format device))
+    (oss-set-channels stream (dsp-device-channels device))
+    (oss-set-sample-rate stream (dsp-device-sample-rate device))))
 
 (defmethod initialize-instance :after ((device dsp-device) &rest initargs)
   (declare (ignore initargs))
   (let ((direction (cond
+                     ((and (input-stream-p device)
+                           (output-stream-p device))
+                      :io)
                      ((input-stream-p device)  :input)
-                     ((output-stream-p device) :output))))
-    (setf (dsp-device-file-desc device)
-          (open/return-descriptor (dsp-device-name device) direction)
-          (dsp-device-stream device)
-          (make-stream-from-descriptor
-           (dsp-device-file-desc device)
-           direction
-           (choose-element-type (dsp-device-sample-format device))))
+                     ((output-stream-p device) :output)
+                     (t (error "Unreachable")))))
+    (setf (dsp-device-stream device)
+          (open (dsp-device-name device)
+                :direction direction
+                :if-exists :supersede
+                :element-type (choose-element-type
+                               (dsp-device-sample-format device))))
     (configure-device device)))
-
-(defun format-supported-p (mask fmt)
-  "Returns T if format FMT is supported"
-  (/= (logand fmt mask) 0))
 
 (defmethod close ((device dsp-device) &rest args)
   (declare (ignore args))
@@ -136,32 +116,12 @@
   (call-next-method))
 
 (defmethod print-object ((device dsp-device) stream)
-  (pprint-logical-block (stream nil :prefix "#<DSP device: " :suffix ">")
-    (when (open-stream-p device)
-      (format stream "Supported formats: ")
-      (let* ((supported-formats (oss-get-fmts (dsp-device-file-desc device)))
-             (supported-formats-list (remove-if-not #'(lambda (format)
-                                                        (format-supported-p supported-formats format))
-                                                    +format-description+
-                                                    :key #'car)))
-        (pprint-logical-block (stream supported-formats-list)
-          (pprint-linear stream (mapcar #'cdr supported-formats-list) nil)))
-
-      (pprint-newline :mandatory stream)
-      (pprint-indent :block 0 stream)
-      (format stream "Current format: ~A"
-              (cdr (find (dsp-device-sample-format device)
-                         +format-description+
-                         :test #'=
-                         :key #'car)))
-      
-      (pprint-newline :mandatory stream)
-      (pprint-indent :block 0 stream)
-      (format stream "Number of channels: ~D" (dsp-device-channels device))
-      
-      (pprint-newline :mandatory stream)
-      (pprint-indent :block 0 stream)
-      (format stream "Sample rate: ~D" (dsp-device-sample-rate device)))))
+  (print-unreadable-object (device stream :type t :identity t)
+    (format stream "format: ~a, channels: ~d, speed: ~d Hz"
+            (cdr (assoc (dsp-device-sample-format device)
+                        *format-description*))
+            (dsp-device-channels device)
+            (dsp-device-sample-rate device))))
 
 ;; Output
 (defclass dsp-device-output (dsp-device fundamental-binary-output-stream)
@@ -198,3 +158,14 @@ are passed to @c(make-instance) on creation of the device."
      (unwind-protect
           (progn ,@body)
        (close ,device))))
+
+(defun device-native-formats (device-name &optional (direction :output))
+  "Return a list of sample formats natively supported by a
+device. Direction can be either @c(:input) or @c(:output).
+
+NB: This function may return incorrect results, for example on FreeBSD
+when @c(hw.snd.report_soft_formats) sysctl is set to 1."
+  (with-open-file (device device-name
+                          :direction direction
+                          :if-exists :supersede)
+    (oss-get-fmts device)))
