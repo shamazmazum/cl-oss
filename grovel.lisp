@@ -18,13 +18,15 @@
   ((:afmt-s16-be "AFMT_S16_BE")
    :documentation "Signed 16-bit bit endian samples")
   ((:afmt-s16-ne "AFMT_S16_NE")
-   :documentation "Signed 16-bit native endian samples")
+   :documentation "Signed 16-bit native endian samples"
+   :optional t)
   ((:afmt-u16-le "AFMT_U16_LE")
    :documentation "Unsigned 16-bit little endian samples")
   ((:afmt-u16-be "AFMT_U16_BE")
    :documentation "Unsigned 16-bit bit endian samples")
   ((:afmt-u16-ne "AFMT_U16_NE")
-   :documentation "Unsigned 16-bit native endian samples")
+   :documentation "Unsigned 16-bit native endian samples"
+   :optional t)
   ;; 24 bits (these are optional, because linux does not have them)
   ((:afmt-s24-le "AFMT_S24_LE")
    :documentation "Signed 24-bit little endian samples"

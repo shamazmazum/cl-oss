@@ -36,7 +36,8 @@
    @end(code)
    If dsp device initialization fails (e.g. unsupported samplerate),
    @c(dsp-conf-error) condition is signaled.
-   The sample formats supported by OSS include:
+   The sample formats supported by OSS include (not all of them may be present
+   on your system):
    @begin(list)
        @item(@c(:afmt-mu-law))
        @item(@c(:afmt-a-law))
