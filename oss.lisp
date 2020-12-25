@@ -32,23 +32,28 @@
   "String description of format codes")
 
 (defclass dsp-device (fundamental-binary-stream)
-  ((name             :initarg :name
-                     :initform "/dev/dsp"
-                     :reader dsp-device-name
+  ((name             :type          string
+                     :initarg       :name
+                     :initform      "/dev/dsp"
+                     :reader        dsp-device-name
                      :documentation "dsp device filename")
-   (sample-format    :reader   dsp-device-sample-format
-                     :documentation "Sample format understood by OSS"
-                     :initarg  :sample-format
-                     :initform (error "Specify sample format"))
-   (channels         :reader   dsp-device-channels
-                     :documentation "Number of audio channels"
-                     :initarg  :channels
-                     :initform (error "Specify number of channels"))
-   (sample-rate      :reader   dsp-device-sample-rate
-                     :documentation "Sample rate"
-                     :initarg  :sample-rate
-                     :initform (error "Specify sample rate"))
-   (stream           :accessor dsp-device-stream
+   (sample-format    :type          unsigned-byte
+                     :initarg       :sample-format
+                     :initform      (error "Specify sample format")
+                     :reader        dsp-device-sample-format
+                     :documentation "Sample format understood by OSS")
+   (channels         :type          unsigned-byte
+                     :initarg       :channels
+                     :initform      (error "Specify number of channels")
+                     :reader        dsp-device-channels
+                     :documentation "Number of audio channels")
+   (sample-rate      :type          unsigned-byte
+                     :initarg       :sample-rate
+                     :initform      (error "Specify sample rate")
+                     :reader        dsp-device-sample-rate
+                     :documentation "Sample rate")
+   (stream           :type          stream
+                     :accessor      dsp-device-stream
                      :documentation "Underlaying stream"))
   (:documentation "DSP device. Not to be instaniated"))
 
