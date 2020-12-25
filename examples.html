@@ -46,7 +46,7 @@
   <h1 class="doc-title">cl-oss » Examples</h1>
   <article id="article" data-section="examples">
     <aside>
-      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="examples.html" data-node="examples">Examples</a></li><li><a href="api.html" data-node="api">API</a></li></ol>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="examples.html" data-node="examples">Examples</a></li><li><a href="api.html" data-node="api">API</a></li><li><a href="porting.html" data-node="porting">Porting</a></li></ol>
     </aside>
     <main class="codex-section">
       
@@ -54,7 +54,7 @@
    either <code>oss:dsp-device-input</code> or <code>oss:dsp-device-output</code>
    class. Bidirectional streams are not supported. Each of these classes is
    inherited from <code>oss:dsp-device</code> class and supports following initargs
-   <ul><li><code>:name</code> is the name of dsp device. Default is <code>&quot;/dev/dsp&quot;</code>.</li><li><code>:sample-format</code> is the sample format supported by OSS.</li><li><code>:channels</code> is the number of channels. Default is 2.</li><li><code>:sample-rate</code> is the sample rate. Default is 44100.</li></ul>
+   <ul><li><code>:name</code> is the name of dsp device. Default is <code>&quot;/dev/dsp&quot;</code>.</li><li><code>:sample-format</code> is the sample format supported by OSS.</li><li><code>:channels</code> is the number of channels.</li><li><code>:sample-rate</code> is the sample rate.</li></ul>
    You can work then with instance of <code>oss:dsp-device-input</code> as with binary
    input stream and with instance of <code>oss:dsp-device-output</code> as with binary
    output stream. For example:

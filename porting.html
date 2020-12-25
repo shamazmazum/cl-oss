@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>
-  Overview &ndash; cl-oss
+  Porting &ndash; cl-oss
 </title>
     <link rel="stylesheet" href="static/style.css"/>
     
@@ -14,7 +14,7 @@
   <style>
    /* Highlight the current top-level TOC item, and hide the TOC of all other items */
 
-   .toc a[data-node="index"] {
+   .toc a[data-node="porting"] {
        color: #AD3108;
    }
 
@@ -26,11 +26,11 @@
        display: block;
    }
 
-   .toc li a[data-node="index"] + ol {
+   .toc li a[data-node="porting"] + ol {
        display: block;
    }
 
-   .toc li a[data-node="index"] + ol li {
+   .toc li a[data-node="porting"] + ol li {
        font-size: 16px;
        margin: 0 10px;
    }
@@ -43,19 +43,20 @@
   </head>
   <body>
     
-  <h1 class="doc-title">cl-oss » Overview</h1>
-  <article id="article" data-section="index">
+  <h1 class="doc-title">cl-oss » Porting</h1>
+  <article id="article" data-section="porting">
     <aside>
       <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="examples.html" data-node="examples">Examples</a></li><li><a href="api.html" data-node="api">API</a></li><li><a href="porting.html" data-node="porting">Porting</a></li></ol>
     </aside>
     <main class="codex-section">
-      
-   <code>cl-oss</code> is a simple wrapper for OSS (Open Sound System). It provides
-   access to dsp device for recording and playback through gray streams. It also
-   works for FreeBSD's sound system, as the API is the same. You can get it from
-   <a href="http://github.com/shamazmazum/cl-oss">GitHub</a>. The only currently
-   supported Common Lisp implementation is SBCL, but it's trivial to add any other.
-
+      <p>
+   To port <code>cl-oss</code> to another Common Lisp implementation you need to
+   familiarize <code>stream-descriptor</code> function with that implementation.</p><p>   Please send any improvements back to me as a pull request to
+   <code>shamazmazum/cl-oss</code> repository at github.
+   
+      <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">stream-descriptor</code><code class="codex-lambda-list">(stream)</code><div class="codex-docstring">Return underlying file descriptor associated with the stream.</div></div>
+   
+</p>
     </main>
   </article>
   <footer>
