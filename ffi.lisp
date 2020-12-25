@@ -23,6 +23,8 @@
   (data    :pointer))
 
 (defun stream-descriptor (stream)
+  "Return underlying file descriptor associated with the stream."
+  #+sbcl
   (sb-sys:fd-stream-fd stream))
 
 (defun oss-set-fmt (stream format)

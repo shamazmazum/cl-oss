@@ -77,3 +77,15 @@
       @cl:doc(function device-native-formats)
    )
 @end(section)
+
+@begin(section)
+   @title(Porting)
+   To port @c(cl-oss) to another Common Lisp implementation you need to
+   familiarize @c(stream-descriptor) function with that implementation.
+
+   Please send any improvements back to me as a pull request to
+   @c(shamazmazum/cl-oss) repository at github.
+   @cl:with-package[name="cl-oss"](
+      @cl:doc(function stream-descriptor)
+   )
+@end(section)
