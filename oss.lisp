@@ -52,6 +52,16 @@
                      :initform      (error "Specify sample rate")
                      :reader        dsp-device-sample-rate
                      :documentation "Sample rate")
+   (policy           :type          (or null (integer 0 10))
+                     :initarg       :policy
+                     :initform      nil
+                     :reader        dsp-device-policy
+                     :documentation "Latency policy in the range 0..10")
+   (cooked-mode      :type          (member nil :enabled :disabled)
+                     :initarg       :cooked-mode
+                     :initform      nil
+                     :reader        dsp-device-cooked-mode
+                     :documentation "Cooked mode (software sample rate / format conversion")
    (stream           :type          stream
                      :accessor      dsp-device-stream
                      :documentation "Underlaying stream"))
@@ -94,6 +104,10 @@
 
 (defun configure-device (device)
   (let ((stream (dsp-device-stream device)))
+    (when (dsp-device-cooked-mode device)
+      (oss-set-cooked stream (dsp-device-cooked-mode device)))
+    (when (dsp-device-policy device)
+      (oss-set-policy stream (dsp-device-policy device)))
     (oss-set-fmt stream (dsp-device-sample-format device))
     (oss-set-channels stream (dsp-device-channels device))
     (oss-set-sample-rate stream (dsp-device-sample-rate device))))

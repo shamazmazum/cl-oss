@@ -4,7 +4,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (error "This library cannot be compiled on this implementation"))
 
-(define-condition dsp-conf-error (error)
+(define-condition dsp-condition ()
   ((message :reader   dsp-error-message
             :initarg  :message
             :initform "")
@@ -12,15 +12,32 @@
             :initarg  :stream
             :initform nil))
   (:report (lambda (c s)
-             (format s "DSP error ~S on device ~A"
+             (format s "DSP ~a ~a on device ~a"
+                     (if (typep c 'error)
+                         "error" "warning")
                      (dsp-error-message c)
                      (dsp-error-stream c))))
-  (:documentation "DSP error"))
+  (:documentation "Generic DSP condition"))
 
-(defcfun ioctl :int
+(define-condition dsp-conf-error (error dsp-condition)
+  ()
+  (:documentation "DSP configuration error"))
+
+(define-condition dsp-conf-warning (warning dsp-condition)
+  ()
+  (:documentation "DSP configuration warning"))
+
+(defcfun (ioctl% "ioctl")  :int
   (fd      :int)
   (request :ulong)
   (data    :pointer))
+
+(defmacro ioctl (fd request data)
+  (if (boundp request)
+      `(/= (ioctl% ,fd ,request ,data) -1)))
+
+(defmacro when-not (conditional &body body)
+  `(when (not ,conditional) ,@body))
 
 (defun stream-descriptor (stream)
   "Return underlying file descriptor associated with the stream."
@@ -28,50 +45,79 @@
   (sb-sys:fd-stream-fd stream))
 
 (defun oss-set-fmt (stream format)
-  (let ((format-value (foreign-bitfield-value 'audio-format
-                                              (list format))))
+  (let ((format-value
+         (foreign-bitfield-value 'audio-format (list format))))
     (with-foreign-object (ptr :int)
       (setf (mem-ref ptr :int) format-value)
-      (if (or (= (ioctl (stream-descriptor stream)
-                        +sndctl-dsp-setfmt+ ptr)
-                 -1)
-              (/= (mem-ref ptr :int) format-value))
-          (error 'dsp-conf-error
-                 :message "Cannot set audio format"
-                 :stream stream))))
+      (when-not
+          (and (ioctl (stream-descriptor stream)
+                      +sndctl-dsp-setfmt+ ptr)
+               (= (mem-ref ptr :int) format-value))
+        (error 'dsp-conf-error
+               :message "Cannot set audio format"
+               :stream stream))))
   format)
 
 (defun oss-set-channels (stream channels)
   (with-foreign-object (ptr :int)
     (setf (mem-ref ptr :int) channels)
-    (if (or (= (ioctl (stream-descriptor stream)
-                      +sndctl-dsp-channels+ ptr)
-               -1)
-            (/= (mem-ref ptr :int) channels))
-        (error 'dsp-conf-error
-               :message "Cannot set number of channels"
-               :stream stream)))
+    (when-not
+        (and (ioctl (stream-descriptor stream)
+                    +sndctl-dsp-channels+ ptr)
+             (= (mem-ref ptr :int) channels))
+      (error 'dsp-conf-error
+             :message "Cannot set number of channels"
+             :stream stream)))
   channels)
 
 (defun oss-set-sample-rate (stream sample-rate)
   (with-foreign-object (ptr :int)
     (setf (mem-ref ptr :int) sample-rate)
-    (if (or (= (ioctl (stream-descriptor stream)
-                      +sndctl-dsp-speed+ ptr)
-               -1)
-            (/= (mem-ref ptr :int) sample-rate))
-        (error 'dsp-conf-error
-               :message "Cannot set sample rate"
-               :stream stream)))
+    (when-not
+        (and (ioctl (stream-descriptor stream)
+                    +sndctl-dsp-speed+ ptr)
+             (= (mem-ref ptr :int) sample-rate))
+      (error 'dsp-conf-error
+             :message "Cannot set sample rate"
+             :stream stream)))
   sample-rate)
 
 (defun oss-get-fmts (stream)
   (with-foreign-object (ptr :int)
-    (if (= (ioctl (stream-descriptor stream)
-                  +sndctl-dsp-getfmts+ ptr)
-           -1)
-        (error 'dsp-conf-error
-               :message "Cannot query native formats"
-               :stream stream))
+    (when-not
+        (ioctl (stream-descriptor stream)
+               +sndctl-dsp-getfmts+ ptr)
+      (error 'dsp-conf-error
+             :message "Cannot query native formats"
+             :stream stream))
     (foreign-bitfield-symbols 'audio-format
                               (mem-ref ptr :int))))
+
+(defun oss-set-cooked (stream cooked)
+  (let ((cooked-int
+         (ecase cooked
+           (:enabled  1)
+           (:disabled 0))))
+    (with-foreign-object (ptr :int)
+      (setf (mem-ref ptr :int) cooked-int)
+      (when-not
+          (and (ioctl (stream-descriptor stream)
+                      +sndctl-dsp-cookedmode+ ptr)
+               (= (mem-ref ptr :int) cooked-int))
+        (warn 'dsp-conf-warning
+              :message "Cannot set cooked mode"
+              :stream stream))))
+  cooked)
+
+(defun oss-set-policy (stream policy)
+  (declare (type (integer 0 10) policy))
+  (with-foreign-object (ptr :int)
+    (setf (mem-ref ptr :int) policy)
+    (when-not
+        (and (ioctl (stream-descriptor stream)
+                    +sndctl-dsp-policy+ ptr)
+             (= (mem-ref ptr :int) policy))
+      (warn 'dsp-conf-warning
+            :message "Cannot set latency policy"
+            :stream stream)))
+  policy)

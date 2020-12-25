@@ -88,3 +88,10 @@
   :documentation "Set number of channels")
 (constant (+sndctl-dsp-speed+ "SNDCTL_DSP_SPEED")
   :documentation "Set sample rate")
+(constant (+sndctl-dsp-cookedmode+ "SNDCTL_DSP_COOKEDMODE")
+  :documentation "Enable or disable cooked mode (software sample rate
+/ format conversion)."
+  :optional t)
+(constant (+sndctl-dsp-policy+ "SNDCTL_DSP_POLICY")
+  :documentation "Set device latency policy (0..10)"
+  :optional t)
