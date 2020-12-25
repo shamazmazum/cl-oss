@@ -61,7 +61,7 @@
                      :initarg       :cooked-mode
                      :initform      nil
                      :reader        dsp-device-cooked-mode
-                     :documentation "Cooked mode (software sample rate / format conversion")
+                     :documentation "Cooked mode (software sample rate and format conversion)")
    (stream           :type          stream
                      :accessor      dsp-device-stream
                      :documentation "Underlaying stream"))
