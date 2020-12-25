@@ -16,8 +16,8 @@
    @begin(list)
        @item(@c(:name) is the name of dsp device. Default is @c("/dev/dsp").)
        @item(@c(:sample-format) is the sample format supported by OSS.)
-       @item(@c(:channels) is the number of channels. Default is 2.)
-       @item(@c(:sample-rate) is the sample rate. Default is 44100.)
+       @item(@c(:channels) is the number of channels.)
+       @item(@c(:sample-rate) is the sample rate.)
    @end(list)
    You can work then with instance of @c(oss:dsp-device-input) as with binary
    input stream and with instance of @c(oss:dsp-device-output) as with binary

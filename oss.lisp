@@ -39,15 +39,15 @@
    (sample-format    :reader   dsp-device-sample-format
                      :documentation "Sample format understood by OSS"
                      :initarg  :sample-format
-                     :initform :afmt-s16-le)
+                     :initform (error "Specify sample format"))
    (channels         :reader   dsp-device-channels
                      :documentation "Number of audio channels"
                      :initarg  :channels
-                     :initform 2)
+                     :initform (error "Specify number of channels"))
    (sample-rate      :reader   dsp-device-sample-rate
                      :documentation "Sample rate"
                      :initarg  :sample-rate
-                     :initform 44100)
+                     :initform (error "Specify sample rate"))
    (stream           :accessor dsp-device-stream
                      :documentation "Underlaying stream"))
   (:documentation "DSP device. Not to be instaniated"))
