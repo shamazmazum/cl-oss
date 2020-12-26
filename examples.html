@@ -53,8 +53,18 @@
    To create an input or output stream for dsp device you must instaniate from
    either <code>oss:dsp-device-input</code> or <code>oss:dsp-device-output</code>
    class. Bidirectional streams are not supported. Each of these classes is
-   inherited from <code>oss:dsp-device</code> class and supports following initargs
-   <ul><li><code>:name</code> is the name of dsp device. Default is <code>&quot;/dev/dsp&quot;</code>.</li><li><code>:sample-format</code> is the sample format supported by OSS.</li><li><code>:channels</code> is the number of channels.</li><li><code>:sample-rate</code> is the sample rate.</li></ul>
+   inherited from <code>oss:dsp-device</code> class and requires that you provide
+   following mandatory initargs:
+   <ul><li><code>:sample-format</code> is the sample format supported by OSS.</li><li><code>:channels</code> is the number of channels.</li><li><code>:sample-rate</code> is the sample rate.</li></ul>
+   Following optional initargs are supported:
+   <ul><li><code>:name</code> is the name of dsp device. Default is <code>&quot;/dev/dsp&quot;</code>.</li><li><code>:cooked-mode</code> enables or disables cooked mode (software sample
+             rate and format conversion). Can be <code>nil</code>, <code>:enabled</code> and
+             <code>:disabled</code>. When <code>nil</code> is specified, no specific ioctl is
+             issued and the setting keeps the system's default behavior, which
+             is usually cooked mode enabled. Default value is <code>nil</code>.</li><li><code>:policy</code> sets a latency policy. Valid values are integers from 0
+             to 10 or <code>nil</code>. Lower policies mean lower latencies. Usually the
+             user should not care about this setting. Default value is <code>nil</code>
+             which keeps the system's default.</li></ul>
    You can work then with instance of <code>oss:dsp-device-input</code> as with binary
    input stream and with instance of <code>oss:dsp-device-output</code> as with binary
    output stream. For example:
