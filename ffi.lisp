@@ -33,6 +33,9 @@
   (data    :pointer))
 
 (defmacro ioctl (fd request data)
+  "Issue ioctl system call for the file descriptor @c(fd). If
+@c(request) symbol has no value (e.g. this request is not defined on
+your system), simply do nothing."
   (if (boundp request)
       `(/= (ioctl% ,fd ,request ,data) -1)))
 

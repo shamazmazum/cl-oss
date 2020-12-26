@@ -2,7 +2,7 @@
    @title(Overview)
    @c(cl-oss) is a simple wrapper for OSS (Open Sound System). It provides
    access to dsp device for recording and playback through gray streams. It also
-   works for FreeBSD's sound system, as the API is the same. You can get it from
+   works with FreeBSD's sound system, as the API is the same. You can get it from
    @link[uri="http://github.com/shamazmazum/cl-oss"](GitHub). The only currently
    supported Common Lisp implementation is SBCL, but it's trivial to add any other.
 @end(section)
@@ -12,12 +12,25 @@
    To create an input or output stream for dsp device you must instaniate from
    either @c(oss:dsp-device-input) or @c(oss:dsp-device-output)
    class. Bidirectional streams are not supported. Each of these classes is
-   inherited from @c(oss:dsp-device) class and supports following initargs
+   inherited from @c(oss:dsp-device) class and requires that you provide
+   following mandatory initargs:
    @begin(list)
-       @item(@c(:name) is the name of dsp device. Default is @c("/dev/dsp").)
        @item(@c(:sample-format) is the sample format supported by OSS.)
        @item(@c(:channels) is the number of channels.)
        @item(@c(:sample-rate) is the sample rate.)
+   @end(list)
+   Following optional initargs are supported:
+   @begin(list)
+       @item(@c(:name) is the name of dsp device. Default is @c("/dev/dsp").)
+       @item(@c(:cooked-mode) enables or disables cooked mode (software sample
+             rate and format conversion). Can be @c(nil), @c(:enabled) and
+             @c(:disabled). When @c(nil) is specified, no specific ioctl is
+             issued and the setting keeps the system's default behavior, which
+             is usually cooked mode enabled. Default value is @c(nil).)
+       @item(@c(:policy) sets a latency policy. Valid values are integers from 0
+             to 10 or @c(nil). Lower policies mean lower latencies. Usually the
+             user should not care about this setting. Default value is @c(nil)
+             which keeps the system's default.)
    @end(list)
    You can work then with instance of @c(oss:dsp-device-input) as with binary
    input stream and with instance of @c(oss:dsp-device-output) as with binary
